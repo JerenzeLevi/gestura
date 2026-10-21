@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>Gestura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- TensorFlow.js and Teachable Machine image library (versions used by Teachable Machine exports) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <!-- Shown only when index.html is opened as a file: browsers block modules, the camera and the model there. -->
+  <div id="fileWarning" class="file-warning" role="alert" hidden>
+    <strong>Open the app through a local server.</strong>
+    Double-click <code>start.bat</code> in the <code>task1_teachable_web</code> folder, or run
+    <code>python -m http.server</code> there and open <code>http://localhost:8000</code>.
+    Opened directly as a file, the browser blocks the camera and the AI model.
+  </div>
+  <script>
+    if (location.protocol === "file:") document.getElementById("fileWarning").hidden = false;
+  </script>
+
+  <header class="site-header">
+    <a href="#/" class="logo"><span class="logo-mark" aria-hidden="true"></span><span data-app-name>Gestura</span></a>
+    <nav class="nav glass" aria-label="Main">
+      <a href="#/">Games</a>
+      <a href="#/practice">Practice</a>
+      <a href="#/rules">Rules</a>
+      <a href="#/about">About</a>
+      <a href="#/credits">Credits</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <!-- Menu -->
+    <section data-screen="menu">
+      <div class="hero">
+        <p class="eyebrow">Touchless control · AI gesture recognition</p>
+        <h1 class="title">Your hands are the <span class="gold">controller</span></h1>
+        <p class="lead">
+          A webcam and a custom AI model trained in Google Teachable Machine turn your gestures into game moves.
+          No keyboard, mouse or touch screen needed.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#/boxing">Enter the ring</a>
+          <a class="btn" href="#/practice">Practice moves</a>
+        </div>
+      </div>
+
+      <div class="game-grid">
+        <a class="game-card featured" href="#/boxing">
+          <span class="game-orb" aria-hidden="true">🥊</span>
+          <h2>Boxing</h2>
+          <p>Two players, one camera. Jab, guard, dodge and land your ultimate to win the match.</p>
+          <span class="tag play">Play · 2 players</span>
+        </a>
+        <a class="game-card" href="#/practice">
+          <span class="game-orb" aria-hidden="true">🎯</span>
+          <h2>Practice</h2>
+          <p>Learn every move and watch the AI's live predictions and confidence scores.</p>
+          <span class="tag play">Play · 1 player</span>
+        </a>
+        <div class="game-card disabled" aria-disabled="true">
+          <span class="game-orb" aria-hidden="true">🤟</span>
+          <h2>Sign Language</h2>
+          <p>Practice basic hand signs with instant AI feedback.</p>
+          <span class="tag">Coming soon</span>
+        </div>
+        <div class="game-card disabled" aria-disabled="true">
+          <span class="game-orb" aria-hidden="true">✨</span>
+          <h2>More games</h2>
+          <p>New gesture games are on the way.</p>
+          <span class="tag">Coming soon</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Boxing -->
+    <section data-screen="boxing" hidden>
+      <div class="stage">
+        <div class="fight-hud">
+          <div class="fighter-hud" data-player="1">
+            <div class="fighter-name"><span class="p-badge p1">P1</span><span class="corner">Red corner</span><span class="pips" aria-label="Rounds won"></span></div>
+            <div class="meter hp"><div class="meter-lag"></div><div class="meter-fill"></div><span class="hp-text"></span></div>
+            <div class="meter-row">
+              <div class="meter stamina" title="Stamina"><div class="meter-fill"></div></div>
+              <div class="meter ult" title="Ultimate"><div class="meter-fill"></div></div>
+            </div>
+          </div>
+
+          <div class="round-box">
+            <span id="roundLabel">Round 1</span>
+            <span id="roundTimer" class="timer">60</span>
+          </div>
+
+          <div class="fighter-hud" data-player="2">
+            <div class="fighter-name"><span class="pips" aria-label="Rounds won"></span><span class="corner">Blue corner</span><span class="p-badge p2">P2</span></div>
+            <div class="meter hp"><div class="meter-lag"></div><div class="meter-fill"></div><span class="hp-text"></span></div>
+            <div class="meter-row">
+              <div class="meter ult" title="Ultimate"><div class="meter-fill"></div></div>
+              <div class="meter stamina" title="Stamina"><div class="meter-fill"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arena">
+          <div id="arenaVideo" class="arena-video">
+            <div class="arena-placeholder"><span class="spinner" aria-hidden="true"></span><p>Starting camera…</p></div>
+          </div>
+          <div class="arena-lights" aria-hidden="true"></div>
+          <div class="half-overlay" data-player="1"><span class="zone-tag p1">P1 zone</span></div>
+          <div class="half-overlay" data-player="2"><span class="zone-tag p2">P2 zone</span></div>
+          <div class="arena-divider" aria-hidden="true"></div>
+          <div id="arenaMessage" class="arena-message" role="status"></div>
+        </div>
+      </div>
+
+      <div class="fight-controls">
+        <button id="fightStart" class="btn primary" disabled>Start fight</button>
+        <a class="btn" href="#/rules">Moves &amp; rules</a>
+        <a class="btn" href="#/">Quit</a>
+      </div>
+      <p id="boxingStatus" class="status" role="status"></p>
+
+      <div class="live-grid">
+        <div class="card live-pred" data-player="1">
+          <h3><span class="p-badge p1">P1</span> AI sees <span class="live-label">—</span></h3>
+          <div class="bars compact"></div>
+        </div>
+        <div class="card live-pred" data-player="2">
+          <h3><span class="p-badge p2">P2</span> AI sees <span class="live-label">—</span></h3>
+          <div class="bars compact"></div>
+        </div>
+      </div>
+      <p class="rotate-hint">Tip: turn your phone sideways or use a laptop. Both players need to fit in the camera.</p>
+    </section>
+
+    <!-- Practice -->
+    <section data-screen="practice" hidden>
+      <div class="section-head">
+        <p class="eyebrow">Training camp</p>
+        <h1 class="title">Practice</h1>
+        <p class="lead">Hold the move shown until the bar fills. The panel shows what the AI model predicts, live.</p>
+      </div>
+
+      <div class="practice-layout">
+        <div class="card">
+          <div class="arena practice-arena">
+            <div id="practiceVideo" class="arena-video">
+              <div class="arena-placeholder"><span class="spinner" aria-hidden="true"></span><p>Starting camera…</p></div>
+            </div>
+            <div id="practiceZone" class="practice-zone" data-zone="left"></div>
+          </div>
+          <div class="practice-controls">
+            <label>Practice as
+              <select id="practiceZoneSelect">
+                <option value="left">P1 (left side)</option>
+                <option value="center">Center</option>
+                <option value="right">P2 (right side)</option>
+              </select>
+            </label>
+            <button id="practiceSkip" class="btn">Skip move</button>
+          </div>
+          <p id="practiceStatus" class="status" role="status"></p>
+        </div>
+
+        <div class="card">
+          <p class="eyebrow">Do this move</p>
+          <div id="practiceTarget" class="practice-target">—</div>
+          <div class="meter hold"><div id="practiceHold" class="meter-fill"></div></div>
+          <p class="score-line">Moves completed: <strong id="practiceScore">0</strong></p>
+
+          <h2 class="panel-title">AI prediction: <span id="practiceLabel" class="gold">—</span></h2>
+          <div id="practiceBars" class="bars"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rules -->
+    <section data-screen="rules" hidden>
+      <div class="section-head">
+        <p class="eyebrow">Fight guide</p>
+        <h1 class="title">Moves &amp; rules</h1>
+        <p class="lead">Hold a pose clearly for a moment and the AI turns it into a move. Holding it longer does not repeat it, so return to Idle between moves.</p>
+      </div>
+
+      <div class="moves-grid">
+        <article class="card move"><span class="move-icon">🧍</span><h2>Idle</h2><p class="how">Hands down, relaxed.</p><p>Nothing happens. Your stamina recovers.</p></article>
+        <article class="card move"><span class="move-icon">✊</span><h2>Jab</h2><p class="how">Show a closed fist.</p><p><strong>5 damage</strong>. Fast, cheap on stamina.</p></article>
+        <article class="card move"><span class="move-icon">👍</span><h2>Uppercut</h2><p class="how">Thumbs up (like).</p><p><strong>12 damage</strong>. Longer cooldown.</p></article>
+        <article class="card move"><span class="move-icon">👎</span><h2>Kick</h2><p class="how">Thumbs down (dislike).</p><p><strong>10 damage</strong>.</p></article>
+        <article class="card move"><span class="move-icon">🛡️</span><h2>Guard</h2><p class="how">Show both open palms.</p><p>Take only <strong>20%</strong> damage while held. Drains stamina; at zero your guard breaks.</p></article>
+        <article class="card move"><span class="move-icon">↔️</span><h2>Dodge</h2><p class="how">Lean your head left to dodge left, right to dodge right.</p><p>Avoid all damage for <strong>0.5 s</strong>.</p></article>
+        <article class="card move ultimate"><span class="move-icon">✌️</span><h2>Ultimate</h2><p class="how">Peace sign.</p><p><strong>30 damage</strong>. Only works when your ultimate meter is full. Fill it by landing hits and taking damage.</p></article>
+      </div>
+
+      <div class="card rules-list">
+        <h2>How a match works</h2>
+        <ul>
+          <li>Player 1 stands in the <strong>left</strong> half of the camera, Player 2 in the <strong>right</strong> half.</li>
+          <li>Each fighter has <strong>100 HP</strong>, a stamina bar and an ultimate meter.</li>
+          <li>Rounds last <strong>60 seconds</strong>. A K.O., or having more HP when time runs out, wins the round.</li>
+          <li>Win <strong>2 rounds</strong> (best of 3) to win the match.</li>
+          <li>Moves need stamina. If you are too tired, the move does not happen.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section data-screen="about" hidden>
+      <div class="section-head">
+        <p class="eyebrow">The project</p>
+        <h1 class="title">About <span data-app-name>Gestura</span></h1>
+        <p class="lead">A demonstration of touchless, gesture-based control powered by a custom image-classification model.</p>
+      </div>
+
+      <div class="about-grid">
+        <article class="card">
+          <h2>Purpose and real-world use</h2>
+          <p>
+            Many everyday screens still need touch, a mouse or a controller. Gesture recognition lets people control
+            devices without touching them, which is useful for:
+          </p>
+          <ul>
+            <li><strong>Hygiene:</strong> public kiosks, hospitals and kitchens.</li>
+            <li><strong>Accessibility:</strong> people who cannot use a keyboard or mouse comfortably.</li>
+            <li><strong>Smart TVs and displays:</strong> control from across the room.</li>
+            <li><strong>Active play:</strong> games that get people moving.</li>
+          </ul>
+          <p>This app packages that idea as a fun game, so anyone can try touchless control in seconds.</p>
+        </article>
+
+        <article class="card">
+          <h2>How the model was trained</h2>
+          <ol>
+            <li>Created an <strong>Image Project</strong> in Google Teachable Machine.</li>
+            <li>Added one class per move: Idle, Jab, Uppercut, Kick, Guard, Dodge Left, Dodge Right and Ultimate.</li>
+            <li>Recorded webcam samples of each move from different people, positions and lighting.</li>
+            <li>Trained the model (transfer learning on MobileNet) and tested it in the preview.</li>
+            <li>Exported it as a TensorFlow.js model and loaded it in this web app.</li>
+          </ol>
+        </article>
+
+        <article class="card">
+          <h2>How it works in the app</h2>
+          <ol>
+            <li>The webcam frame is mirrored and split into a left and a right half, one per player.</li>
+            <li>Each half is resized to 224×224 pixels and classified by the model several times per second.</li>
+            <li>The model returns a confidence score for every move. You can see these live under the arena.</li>
+            <li>When one move stays above 75% confidence for two predictions in a row, the game performs it.</li>
+          </ol>
+        </article>
+
+        <article class="card">
+          <h2>Technology</h2>
+          <ul>
+            <li>Google Teachable Machine (image model)</li>
+            <li>TensorFlow.js and the Teachable Machine image library</li>
+            <li>HTML, CSS and JavaScript (runs fully in the browser; no video is uploaded)</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Credits -->
+    <section data-screen="credits" hidden>
+      <div class="section-head">
+        <p class="eyebrow">Thanks</p>
+        <h1 class="title">Credits</h1>
+      </div>
+      <div class="about-grid">
+        <article class="card">
+          <h2>Team</h2>
+          <!-- Replace with your names -->
+          <p>Your name here<br />Course: Intelligent Systems</p>
+        </article>
+        <article class="card">
+          <h2>Built with</h2>
+          <ul>
+            <li><a href="https://teachablemachine.withgoogle.com/" target="_blank" rel="noopener">Google Teachable Machine</a></li>
+            <li><a href="https://www.tensorflow.org/js" target="_blank" rel="noopener">TensorFlow.js</a></li>
+            <li>Fonts: Bebas Neue and Inter (Google Fonts)</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span data-app-name>Gestura</span> · Gesture recognition with a Google Teachable Machine image model. Camera frames never leave your device.
+  </footer>
+</body>
+</html>

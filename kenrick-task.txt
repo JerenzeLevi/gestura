@@ -1,0 +1,40 @@
+TASK FOR KENRICK: gather the dataset and train the model in Google Teachable Machine
+===================================================================================
+
+The game code is ready. It just needs the trained model files.
+
+1. Go to https://teachablemachine.withgoogle.com/train -> "Image Project" -> "Standard image model".
+
+2. Create EXACTLY these 8 classes. The spelling, capitals and spaces must match,
+   because the game looks the moves up by name:
+
+   Class name     Gesture to record
+   -----------    -----------------------------------------------
+   Idle           Hands down, relaxed. Add a few shots of an empty frame too.
+   Jab            Closed fist
+   Uppercut       Thumbs up (like)
+   Kick           Thumbs down (dislike)
+   Guard          Both open palms facing the camera
+   Dodge Left     Head leaning to YOUR left
+   Dodge Right    Head leaning to YOUR right
+   Ultimate       Peace sign (two fingers up)
+
+3. Recording tips:
+   - The game splits the camera in half (P1 left, P2 right), so record ONE person
+     per sample, about the size they'd be in half the frame (head to waist).
+   - Aim for 150+ images per class. Use several people, different clothes,
+     lighting and backgrounds.
+   - Hold each pose still while recording. Move around a little between bursts.
+   - For Dodge Left / Dodge Right keep your hands down so the model learns the
+     head lean, not the hands. Don't swap the sides between people.
+   - Make the hand gestures clearly visible (hand near chest/face height).
+
+4. Click "Train Model". Check the preview: every class should hit high confidence.
+   If two get confused (e.g. Jab vs Kick), record more samples of both.
+
+5. Export Model -> Tensorflow.js -> "Download my model".
+   Unzip and put model.json, metadata.json and weights.bin in the  model/  folder.
+
+6. Run start.bat, open Practice, and check each move works in both the P1 and P2 zones.
+
+More details: model/README.md

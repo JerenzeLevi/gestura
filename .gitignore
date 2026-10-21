@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Claude Code local settings
+.claude/
+
+# Raw training data and Teachable Machine downloads.
+# Commit only the exported model files in model/ (model.json, metadata.json, weights.bin).
+dataset/
+datasets/
+*.zip
+*.tm
+
+# Node (if tooling is added later)
+node_modules/
