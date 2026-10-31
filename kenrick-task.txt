@@ -1,3 +1,19 @@
+STATUS (updated 2026-10-31): DONE. The trained model is committed in model/
+(model.json, metadata.json, weights.bin, exported 2026-10-22) and the app loads and
+validates all eight classes successfully. The checklist below is kept for reference
+and for any retraining.
+
+ONE FOLLOW-UP REQUEST, please:
+  Add empty-frame, partial-person and dark-room images to the Idle class and retrain.
+  Measured on the current model, a completely black frame is classified "Ultimate" at
+  about 90% confidence and a flat grey frame "Guard" at about 71%. The app now rejects
+  featureless frames by measuring pixel detail before the model sees them, but that
+  only covers a covered lens or an unlit room - a player who is only half in frame
+  still produces a confident, meaningless prediction. More Idle training data is the
+  only real fix. See INTEGRATION_REPORT.md section 5.
+
+====================================================================================
+
 TASK FOR KENRICK: gather the dataset and train the model in Google Teachable Machine
 ===================================================================================
 

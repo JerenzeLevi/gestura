@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
-  <title>Gestura</title>
+  <meta name="theme-color" content="#06070c" />
+  <meta name="description" content="Gestura: touchless, gesture-controlled browser games. A webcam and a Teachable Machine image model turn hand poses into game moves. Camera frames never leave your device." />
+  <title>Gestura — gesture-controlled games</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -17,11 +21,13 @@
 <body>
   <div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
 
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <!-- Shown only when index.html is opened as a file: browsers block modules, the camera and the model there. -->
   <div id="fileWarning" class="file-warning" role="alert" hidden>
     <strong>Open the app through a local server.</strong>
-    Double-click <code>start.bat</code> in the <code>task1_teachable_web</code> folder, or run
-    <code>python -m http.server</code> there and open <code>http://localhost:8000</code>.
+    Double-click <code>start.bat</code> in the <code>gestura</code> folder, or run
+    <code>python -m http.server 8000</code> there and open <code>http://localhost:8000</code>.
     Opened directly as a file, the browser blocks the camera and the AI model.
   </div>
   <script>
@@ -29,7 +35,10 @@
   </script>
 
   <header class="site-header">
-    <a href="#/" class="logo"><span class="logo-mark" aria-hidden="true"></span><span data-app-name>Gestura</span></a>
+    <a href="#/" class="logo">
+      <img class="logo-mark" src="assets/favicon.svg" alt="" width="30" height="30" />
+      <span data-app-name>Gestura</span>
+    </a>
     <nav class="nav glass" aria-label="Main">
       <a href="#/">Games</a>
       <a href="#/practice">Practice</a>
@@ -37,9 +46,12 @@
       <a href="#/about">About</a>
       <a href="#/credits">Credits</a>
     </nav>
+    <button class="btn ghost help-btn" type="button" data-open-onboarding="0">
+      <span aria-hidden="true">?</span> How to play
+    </button>
   </header>
 
-  <main class="page">
+  <main class="page" id="main">
     <!-- Menu -->
     <section data-screen="menu">
       <div class="hero">
@@ -47,39 +59,40 @@
         <h1 class="title">Your hands are the <span class="gold">controller</span></h1>
         <p class="lead">
           A webcam and a custom AI model trained in Google Teachable Machine turn your gestures into game moves.
-          No keyboard, mouse or touch screen needed.
+          No keyboard, mouse or touch screen needed, and every frame is classified on your own device.
         </p>
         <div class="hero-actions">
           <a class="btn primary" href="#/boxing">Enter the ring</a>
           <a class="btn" href="#/practice">Practice moves</a>
+          <button class="btn ghost" type="button" data-open-onboarding="0">First time here?</button>
         </div>
       </div>
+
+      <ol class="how-strip" aria-label="How it works">
+        <li><span class="how-num">1</span><strong>Allow the camera</strong><span>Your browser asks once. Nothing is uploaded.</span></li>
+        <li><span class="how-num">2</span><strong>Stand in your zone</strong><span>Head to waist, well lit, inside the highlighted half.</span></li>
+        <li><span class="how-num">3</span><strong>Hold a pose</strong><span>The model recognises it and the game throws the move.</span></li>
+      </ol>
 
       <div class="game-grid">
         <a class="game-card featured" href="#/boxing">
           <span class="game-orb" aria-hidden="true">🥊</span>
           <h2>Boxing</h2>
-          <p>Two players, one camera. Jab, guard, dodge and land your ultimate to win the match.</p>
+          <p>Two players, one camera. Jab, guard, dodge and land your ultimate to win a best-of-three match.</p>
           <span class="tag play">Play · 2 players</span>
         </a>
         <a class="game-card" href="#/practice">
           <span class="game-orb" aria-hidden="true">🎯</span>
           <h2>Practice</h2>
-          <p>Learn every move and watch the AI's live predictions and confidence scores.</p>
+          <p>Learn every move on your own and watch the model's live confidence scores as you pose.</p>
           <span class="tag play">Play · 1 player</span>
         </a>
-        <div class="game-card disabled" aria-disabled="true">
-          <span class="game-orb" aria-hidden="true">🤟</span>
-          <h2>Sign Language</h2>
-          <p>Practice basic hand signs with instant AI feedback.</p>
-          <span class="tag">Coming soon</span>
-        </div>
-        <div class="game-card disabled" aria-disabled="true">
-          <span class="game-orb" aria-hidden="true">✨</span>
-          <h2>More games</h2>
-          <p>New gesture games are on the way.</p>
-          <span class="tag">Coming soon</span>
-        </div>
+        <a class="game-card" href="#/rules">
+          <span class="game-orb" aria-hidden="true">📖</span>
+          <h2>Moves &amp; rules</h2>
+          <p>All eight gestures, what each one does, and how a match is scored.</p>
+          <span class="tag">Read</span>
+        </a>
       </div>
     </section>
 
@@ -121,10 +134,27 @@
           <div class="arena-divider" aria-hidden="true"></div>
           <div id="arenaMessage" class="arena-message" role="status"></div>
         </div>
+
+        <!-- End-of-match summary. Every number comes from an event the match actually raised. -->
+        <div id="matchSummary" class="match-summary" role="dialog" aria-labelledby="matchSummaryTitle" hidden>
+          <div class="match-summary-inner card">
+            <p class="eyebrow">Final result</p>
+            <h2 id="matchSummaryTitle" class="title">Match over</h2>
+            <p class="summary-score">Rounds <strong id="matchSummaryScore">0 – 0</strong></p>
+            <ol id="matchSummaryRounds" class="summary-rounds"></ol>
+            <div id="matchSummaryStats" class="summary-stats"></div>
+            <div class="summary-actions">
+              <button id="matchSummaryRematch" class="btn primary" type="button">Rematch</button>
+              <a class="btn" href="#/">Back to home</a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="fight-controls">
-        <button id="fightStart" class="btn primary" disabled>Start fight</button>
+        <button id="fightStart" class="btn primary" type="button" disabled>Start fight</button>
+        <button id="fightRetry" class="btn" type="button" hidden>Retry model load</button>
+        <button class="btn ghost" type="button" data-open-onboarding="1">Where do we stand?</button>
         <a class="btn" href="#/rules">Moves &amp; rules</a>
         <a class="btn" href="#/">Quit</a>
       </div>
@@ -132,15 +162,27 @@
 
       <div class="live-grid">
         <div class="card live-pred" data-player="1">
-          <h3><span class="p-badge p1">P1</span> AI sees <span class="live-label">—</span></h3>
+          <h3>
+            <span class="p-badge p1">P1</span> AI sees <span class="live-label">—</span>
+            <span class="zone-ready" data-state="unknown">checking</span>
+          </h3>
+          <p class="live-hint">Waiting for the camera…</p>
           <div class="bars compact"></div>
         </div>
         <div class="card live-pred" data-player="2">
-          <h3><span class="p-badge p2">P2</span> AI sees <span class="live-label">—</span></h3>
+          <h3>
+            <span class="p-badge p2">P2</span> AI sees <span class="live-label">—</span>
+            <span class="zone-ready" data-state="unknown">checking</span>
+          </h3>
+          <p class="live-hint">Waiting for the camera…</p>
           <div class="bars compact"></div>
         </div>
       </div>
-      <p class="rotate-hint">Tip: turn your phone sideways or use a laptop. Both players need to fit in the camera.</p>
+      <p class="zone-note">
+        “Zone check” reports how confident the model is about the pose in each half of the frame.
+        It is a confidence reading, not body detection — the app does not track or locate people.
+      </p>
+      <p class="rotate-hint">Tip: turn your phone sideways, or use a laptop. Two players rarely fit in a phone's front camera.</p>
     </section>
 
     <!-- Practice -->
@@ -160,14 +202,15 @@
             <div id="practiceZone" class="practice-zone" data-zone="left"></div>
           </div>
           <div class="practice-controls">
-            <label>Practice as
-              <select id="practiceZoneSelect">
-                <option value="left">P1 (left side)</option>
-                <option value="center">Center</option>
-                <option value="right">P2 (right side)</option>
-              </select>
-            </label>
-            <button id="practiceSkip" class="btn">Skip move</button>
+            <label for="practiceZoneSelect">Practice as</label>
+            <select id="practiceZoneSelect">
+              <option value="left">P1 (left side)</option>
+              <option value="center">Center</option>
+              <option value="right">P2 (right side)</option>
+            </select>
+            <button id="practiceSkip" class="btn" type="button">Skip move</button>
+            <button id="practiceRetry" class="btn" type="button" hidden>Retry model load</button>
+            <button class="btn ghost" type="button" data-open-onboarding="2">Zone help</button>
           </div>
           <p id="practiceStatus" class="status" role="status"></p>
         </div>
@@ -175,8 +218,14 @@
         <div class="card">
           <p class="eyebrow">Do this move</p>
           <div id="practiceTarget" class="practice-target">—</div>
-          <div class="meter hold"><div id="practiceHold" class="meter-fill"></div></div>
-          <p class="score-line">Moves completed: <strong id="practiceScore">0</strong></p>
+          <p id="practiceTargetHint" class="target-hint"></p>
+          <div id="practiceHoldMeter" class="meter hold" role="progressbar" aria-label="Hold progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="practiceHold" class="meter-fill"></div>
+          </div>
+          <p id="practiceFeedback" class="feedback" role="status"></p>
+          <p class="score-line">
+            Completed: <strong id="practiceScore">0</strong> · Skipped: <strong id="practiceSkipped">0</strong>
+          </p>
 
           <h2 class="panel-title">AI prediction: <span id="practiceLabel" class="gold">—</span></h2>
           <div id="practiceBars" class="bars"></div>
@@ -189,28 +238,73 @@
       <div class="section-head">
         <p class="eyebrow">Fight guide</p>
         <h1 class="title">Moves &amp; rules</h1>
-        <p class="lead">Hold a pose clearly for a moment and the AI turns it into a move. Holding it longer does not repeat it, so return to Idle between moves.</p>
+        <p class="lead">Hold a pose clearly for a moment and the AI turns it into a move. Holding it longer does not repeat it — return to Idle, then pose again.</p>
       </div>
+
+      <p class="note">
+        The symbols below are decoration. The poses the model was trained to recognise are the written
+        descriptions — they are the ones that count. Full recording notes are in <code>model/README.md</code>.
+      </p>
 
       <div class="moves-grid">
-        <article class="card move"><span class="move-icon">🧍</span><h2>Idle</h2><p class="how">Hands down, relaxed.</p><p>Nothing happens. Your stamina recovers.</p></article>
-        <article class="card move"><span class="move-icon">✊</span><h2>Jab</h2><p class="how">Show a closed fist.</p><p><strong>5 damage</strong>. Fast, cheap on stamina.</p></article>
-        <article class="card move"><span class="move-icon">👍</span><h2>Uppercut</h2><p class="how">Thumbs up (like).</p><p><strong>12 damage</strong>. Longer cooldown.</p></article>
-        <article class="card move"><span class="move-icon">👎</span><h2>Kick</h2><p class="how">Thumbs down (dislike).</p><p><strong>10 damage</strong>.</p></article>
-        <article class="card move"><span class="move-icon">🛡️</span><h2>Guard</h2><p class="how">Show both open palms.</p><p>Take only <strong>20%</strong> damage while held. Drains stamina; at zero your guard breaks.</p></article>
-        <article class="card move"><span class="move-icon">↔️</span><h2>Dodge</h2><p class="how">Lean your head left to dodge left, right to dodge right.</p><p>Avoid all damage for <strong>0.5 s</strong>.</p></article>
-        <article class="card move ultimate"><span class="move-icon">✌️</span><h2>Ultimate</h2><p class="how">Peace sign.</p><p><strong>30 damage</strong>. Only works when your ultimate meter is full. Fill it by landing hits and taking damage.</p></article>
+        <article class="card move">
+          <span class="move-icon" aria-hidden="true">🧍</span><h2>Idle</h2>
+          <p class="how">Stand relaxed with your hands down.</p><p>Nothing happens. Your stamina recovers.</p>
+        </article>
+        <article class="card move">
+          <span class="move-icon" aria-hidden="true">✊</span><h2>Jab</h2>
+          <p class="how">Show a closed fist toward the camera.</p><p><strong>5 damage</strong>, 0.5 s cooldown, 5 stamina.</p>
+        </article>
+        <article class="card move">
+          <span class="move-icon" aria-hidden="true">👍</span><h2>Uppercut</h2>
+          <p class="how">Thumbs up.</p><p><strong>12 damage</strong>, 1.2 s cooldown, 12 stamina.</p>
+        </article>
+        <article class="card move">
+          <span class="move-icon" aria-hidden="true">👎</span><h2>Kick</h2>
+          <p class="how">Thumbs down.</p><p><strong>10 damage</strong>, 1 s cooldown, 10 stamina.</p>
+        </article>
+        <article class="card move">
+          <span class="move-icon" aria-hidden="true">🛡️</span><h2>Guard</h2>
+          <p class="how">Both open palms facing the camera.</p>
+          <p>Take only <strong>20%</strong> damage while held. Drains 10 stamina per second; at zero your guard breaks and locks for 1.5 s.</p>
+        </article>
+        <article class="card move">
+          <span class="move-icon" aria-hidden="true">⬅️</span><h2>Dodge Left</h2>
+          <p class="how">Lean your head to your left, hands down.</p><p>Avoid all damage for <strong>0.5 s</strong>. 1.5 s cooldown, 8 stamina.</p>
+        </article>
+        <article class="card move">
+          <span class="move-icon" aria-hidden="true">➡️</span><h2>Dodge Right</h2>
+          <p class="how">Lean your head to your right, hands down.</p><p>Avoid all damage for <strong>0.5 s</strong>. Shares the dodge cooldown.</p>
+        </article>
+        <article class="card move ultimate">
+          <span class="move-icon" aria-hidden="true">✌️</span><h2>Ultimate</h2>
+          <p class="how">Peace sign, two fingers up.</p>
+          <p><strong>30 damage</strong>. Needs a full ultimate meter, which fills by landing hits and by taking damage.</p>
+        </article>
       </div>
 
-      <div class="card rules-list">
-        <h2>How a match works</h2>
-        <ul>
-          <li>Player 1 stands in the <strong>left</strong> half of the camera, Player 2 in the <strong>right</strong> half.</li>
-          <li>Each fighter has <strong>100 HP</strong>, a stamina bar and an ultimate meter.</li>
-          <li>Rounds last <strong>60 seconds</strong>. A K.O., or having more HP when time runs out, wins the round.</li>
-          <li>Win <strong>2 rounds</strong> (best of 3) to win the match.</li>
-          <li>Moves need stamina. If you are too tired, the move does not happen.</li>
-        </ul>
+      <div class="rules-columns">
+        <div class="card rules-list">
+          <h2>How a match works</h2>
+          <ul>
+            <li>Player 1 stands in the <strong>left</strong> half of the camera, Player 2 in the <strong>right</strong> half.</li>
+            <li>Each fighter has <strong>100 HP</strong>, a stamina bar and an ultimate meter.</li>
+            <li>Rounds last <strong>60 seconds</strong>. A K.O., or more HP when time runs out, wins the round.</li>
+            <li>Win <strong>2 rounds</strong> to win the match. The match always stops after <strong>3 rounds</strong>.</li>
+            <li>Moves need stamina. If you are too tired the move does not happen.</li>
+            <li>A dodge beats everything, including an ultimate.</li>
+          </ul>
+        </div>
+        <div class="card rules-list">
+          <h2>How the AI decides</h2>
+          <ul>
+            <li>Each half of the frame is classified about <strong>7 times a second</strong>.</li>
+            <li>Scores are smoothed over time, so one noisy frame cannot fire a move.</li>
+            <li>A move needs <strong>75% confidence</strong>, a clear lead over the runner-up, and two readings in a row.</li>
+            <li>A pose fires <strong>once</strong>. It must be released before the same move can fire again.</li>
+            <li>If nothing in your half reaches <strong>45%</strong>, the game treats the zone as empty instead of guessing.</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -247,6 +341,9 @@
             <li>Trained the model (transfer learning on MobileNet) and tested it in the preview.</li>
             <li>Exported it as a TensorFlow.js model and loaded it in this web app.</li>
           </ol>
+          <p class="note-inline">
+            Per-class accuracy is not claimed here. Measure it in Practice with the real model before quoting numbers.
+          </p>
         </article>
 
         <article class="card">
@@ -254,17 +351,19 @@
           <ol>
             <li>The webcam frame is mirrored and split into a left and a right half, one per player.</li>
             <li>Each half is resized to 224×224 pixels and classified by the model several times per second.</li>
-            <li>The model returns a confidence score for every move. You can see these live under the arena.</li>
-            <li>When one move stays above 75% confidence for two predictions in a row, the game performs it.</li>
+            <li>The scores are smoothed, then checked against a confidence floor and a runner-up margin.</li>
+            <li>A class that clears both checks twice in a row fires its move, once per pose.</li>
+            <li>The app checks the model's class names on load and refuses to start a fight if they do not match.</li>
           </ol>
         </article>
 
         <article class="card">
-          <h2>Technology</h2>
+          <h2>Technology and privacy</h2>
           <ul>
-            <li>Google Teachable Machine (image model)</li>
+            <li>Google Teachable Machine (image model, transfer learning on MobileNet)</li>
             <li>TensorFlow.js and the Teachable Machine image library</li>
-            <li>HTML, CSS and JavaScript (runs fully in the browser; no video is uploaded)</li>
+            <li>HTML, CSS and JavaScript modules — no build step and no backend</li>
+            <li>Every frame is classified in the browser. No video, image or prediction is uploaded, and the app stores nothing about you except whether you have seen the guide.</li>
           </ul>
         </article>
       </div>
@@ -275,12 +374,20 @@
       <div class="section-head">
         <p class="eyebrow">Thanks</p>
         <h1 class="title">Credits</h1>
+        <p class="lead">Course project for Intelligent Systems.</p>
       </div>
       <div class="about-grid">
         <article class="card">
           <h2>Team</h2>
-          <!-- Replace with your names -->
-          <p>Your name here<br />Course: Intelligent Systems</p>
+          <!--
+            These entries are taken from the repository's own Git history and task notes.
+            Add any further team members, and replace the handles with full names, before submitting.
+          -->
+          <ul class="credit-list">
+            <li><strong>JerenzeLevi</strong><span>Game design and the original web app: router, boxing, practice, camera and UI.</span></li>
+            <li><strong>Kenrick</strong><span>Dataset collection and Teachable Machine training of the eight-class image model.</span></li>
+            <li><strong>Valerie Joy Intong</strong><span>Integration, model validation, gesture-detection tuning, QA and documentation.</span></li>
+          </ul>
         </article>
         <article class="card">
           <h2>Built with</h2>
@@ -288,6 +395,8 @@
             <li><a href="https://teachablemachine.withgoogle.com/" target="_blank" rel="noopener">Google Teachable Machine</a></li>
             <li><a href="https://www.tensorflow.org/js" target="_blank" rel="noopener">TensorFlow.js</a></li>
             <li>Fonts: Bebas Neue and Inter (Google Fonts)</li>
+            <li>Sound effects synthesized in the browser with the Web Audio API</li>
+            <li>Icon and interface artwork drawn for this project</li>
           </ul>
         </article>
       </div>
@@ -297,5 +406,97 @@
   <footer class="site-footer">
     <span data-app-name>Gestura</span> · Gesture recognition with a Google Teachable Machine image model. Camera frames never leave your device.
   </footer>
+
+  <!-- First-run guide. Opens automatically once per browser, and from any "How to play" button. -->
+  <dialog id="onboarding" class="onboarding" aria-labelledby="onboardingTitle">
+    <form method="dialog" class="onboarding-close-form">
+      <button class="icon-btn" value="close" aria-label="Close the guide" data-onboarding-close type="submit">×</button>
+    </form>
+
+    <div class="onboarding-body">
+      <p class="eyebrow" data-onboarding-counter>Step 1 of 5</p>
+      <h2 id="onboardingTitle" class="title">Getting started</h2>
+
+      <section data-step>
+        <h3>The camera stays on your device</h3>
+        <p>
+          Gestura needs your webcam. Your browser will ask once — choose <strong>Allow</strong>. Every frame is
+          classified locally by TensorFlow.js; no image, video or prediction is uploaded anywhere, and nothing is recorded.
+        </p>
+        <ul>
+          <li>The app must be served over <code>http://localhost</code> or https — browsers block the camera for files opened directly.</li>
+          <li>Close Zoom, Teams or the Camera app first; only one app can hold the webcam.</li>
+          <li>Leaving a game screen releases the camera immediately.</li>
+        </ul>
+      </section>
+
+      <section data-step hidden>
+        <h3>Where each player stands</h3>
+        <p>
+          Boxing uses <strong>one camera for two players</strong>. The mirrored frame is cut straight down the middle and
+          each half is classified on its own.
+        </p>
+        <div class="stand-diagram" role="img" aria-label="The camera frame split in half: Player 1 on the left, Player 2 on the right.">
+          <div class="stand-half p1"><span class="p-badge p1">P1</span><span>Left half</span></div>
+          <div class="stand-half p2"><span class="p-badge p2">P2</span><span>Right half</span></div>
+        </div>
+        <ul>
+          <li>Stand so your half of the frame is filled from <strong>head to waist</strong> — that is how the model was trained.</li>
+          <li>Stay inside your half. Crossing the middle puts your pose in the other player's zone.</li>
+          <li>The frame is mirrored, so you move the way you would in a mirror.</li>
+          <li>Each live panel shows a <strong>zone check</strong>. Both should read “ready” before you start.</li>
+        </ul>
+      </section>
+
+      <section data-step hidden>
+        <h3>Practice zones</h3>
+        <p>
+          Practice classifies one zone at a time, and you choose which: <strong>P1 (left)</strong>, <strong>Center</strong>
+          or <strong>P2 (right)</strong>. The highlighted box shows exactly which pixels are sent to the model.
+        </p>
+        <ul>
+          <li>Use the left and right zones to check a move works on <em>both</em> sides before a match — lighting is rarely even.</li>
+          <li>Center is the easiest zone for practising on your own.</li>
+          <li>If the feedback says “move farther into the highlighted zone”, nothing recognisable is in it.</li>
+        </ul>
+      </section>
+
+      <section data-step hidden>
+        <h3>Lighting and clear poses</h3>
+        <ul>
+          <li><strong>Light on your face and hands</strong>, not behind you. A bright window behind you turns you into a silhouette.</li>
+          <li>Hold the pose <strong>still</strong> for about half a second. The model sees single frames, not motion.</li>
+          <li>Make hand poses big and keep them around chest or face height.</li>
+          <li>Plain backgrounds and clothing that contrasts with the wall help a lot.</li>
+          <li>Return to <strong>Idle</strong> between moves — a held pose fires only once.</li>
+        </ul>
+      </section>
+
+      <section data-step hidden>
+        <h3>What the confidence numbers mean</h3>
+        <p>
+          The model gives every move a score out of 100%, and the bars under each game show them live. A move fires only when:
+        </p>
+        <ul>
+          <li>the top score is at least <strong>75%</strong>,</li>
+          <li>it beats the runner-up by a clear margin, and</li>
+          <li>it stays on top for <strong>two readings in a row</strong>.</li>
+        </ul>
+        <p>
+          If nothing reaches <strong>45%</strong>, the zone counts as empty and no move fires. Those rules are shared by both
+          game modes, so a pose that scores well in Practice will behave the same in a match.
+        </p>
+      </section>
+    </div>
+
+    <div class="onboarding-footer">
+      <span class="onboarding-dots"></span>
+      <div class="onboarding-actions">
+        <button class="btn ghost" type="button" data-onboarding-close>Skip</button>
+        <button class="btn" type="button" data-onboarding-back>Back</button>
+        <button class="btn primary" type="button" data-onboarding-next>Next</button>
+      </div>
+    </div>
+  </dialog>
 </body>
 </html>
